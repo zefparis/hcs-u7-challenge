@@ -4,8 +4,8 @@
  */
 
 const CONFIG = {
-  widgetId: 'wgt_e7cec6afb18df420',
-  backendUrl: 'https://hcs-u7-backend.onrender.com',
+  widgetId: 'wgt_741a55a19a933519',
+  backendUrl: 'https://api.hcs-u7.org',
   tenantId: 'cmku6oui4000a04jofxudcigo',
   redirectUrl: 'https://perspecta-competences.fr/dashboard',
   appId: 'perspecta_dashboard'
@@ -16,53 +16,37 @@ console.log('Widget ID:', CONFIG.widgetId);
 
 window.addEventListener('load', () => {
   console.log('✅ Page loaded');
-  checkWidgetLoaded();
+  const loading = document.getElementById('loading');
+  if (loading) loading.style.display = 'none';
 });
 
-function checkWidgetLoaded() {
-  const maxAttempts = 50;
-  let attempts = 0;
-
-  const interval = setInterval(() => {
-    attempts++;
-
-    // Vérifier si le SDK est chargé
-    if (typeof window.HCSWidget !== 'undefined' || attempts >= 10) {
-      console.log('✅ Initializing widget manually');
-      clearInterval(interval);
-      
-      // Masquer loading
-      const loading = document.getElementById('loading');
-      if (loading) loading.style.display = 'none';
-
-      // Créer l'iframe du widget manuellement
-      const container = document.getElementById('hcs-captcha');
-      if (container) {
-        container.style.display = 'block';
-        
-        // Créer l'iframe
-        const iframe = document.createElement('iframe');
-        iframe.src = `https://hcs-widget-mvp.vercel.app/widget/${CONFIG.widgetId}?theme=light&lang=fr`;
-        iframe.style.width = '100%';
-        iframe.style.height = '500px';
-        iframe.style.border = 'none';
-        iframe.style.borderRadius = '8px';
-        
-        container.innerHTML = '';
-        container.appendChild(iframe);
-        
-        console.log('✅ Widget iframe created');
+function onHCSSuccess(token, score) {
+  console.log('✅ Verification success:', { token, score });
+  
+  fetch(`${CONFIG.backendUrl}/hcs/verify-and-redirect`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ 
+      token: token,
+      tenantId: CONFIG.tenantId,
+      appId: CONFIG.appId
+    })
+  })
+    .then(r => r.json())
+    .then(data => {
+      if (data && data.redirectUrl) {
+        showSuccessMessage(score, data.redirectUrl);
+        setTimeout(() => {
+          window.location.href = data.redirectUrl;
+        }, 2000);
+      } else {
+        alert('Verification failed');
       }
-
-      return;
-    }
-
-    if (attempts >= maxAttempts) {
-      console.error('❌ Widget failed to load after 5 seconds');
-      clearInterval(interval);
-      showError("Le widget de sécurité n'a pas pu être chargé. Veuillez rafraîchir la page.");
-    }
-  }, 100);
+    })
+    .catch(err => {
+      console.error('Verification failed:', err);
+      alert('Verification failed');
+    });
 }
 
 function showError(message) {
@@ -83,79 +67,6 @@ function showError(message) {
   `;
 }
 
-window.addEventListener('message', (event) => {
-  if (!event.origin.includes('hcs-widget-mvp.vercel.app') && !event.origin.includes('localhost')) {
-    return;
-  }
-
-  const data = event.data;
-  console.log('📨 Message received from widget:', data);
-
-  if (data && data.type === 'HCS_VERIFICATION_SUCCESS') {
-    console.log('✅ Verification success');
-    console.log('Token:', data.token);
-    console.log('Score:', data.score);
-    handleVerificationSuccess(data.token, data.score);
-  }
-
-  if (data && data.type === 'HCS_VERIFICATION_FAILED') {
-    console.error('❌ Verification failed:', data);
-    showError(`Vérification échouée. Score: ${data.score || 0}/100`);
-  }
-
-  if (data && data.type === 'HCS_VERIFICATION_REDIRECT') {
-    console.log('🚀 Redirecting to:', data.redirectUrl);
-    window.location.href = data.redirectUrl;
-  }
-});
-
-async function handleVerificationSuccess(token, score) {
-  console.log('🔵 Handling verification success...');
-
-  try {
-    console.log('🔵 Requesting redirect URL...');
-
-    const response = await fetch(`${CONFIG.backendUrl}/hcs/verify-and-redirect`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        token,
-        tenantId: CONFIG.tenantId,
-        appId: CONFIG.appId
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error(`Backend returned ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    if (!data.success || !data.redirectUrl) {
-      throw new Error('No redirect URL received');
-    }
-
-    console.log('✅ Redirect URL received:', data.redirectUrl);
-
-    showSuccessMessage(score, data.redirectUrl);
-
-    setTimeout(() => {
-      console.log('🚀 Redirecting now...');
-      window.location.href = data.redirectUrl;
-    }, 2000);
-  } catch (error) {
-    console.error('❌ Error handling verification:', error);
-    console.log('⚠️ Falling back to default redirect');
-
-    showSuccessMessage(score, CONFIG.redirectUrl);
-
-    setTimeout(() => {
-      window.location.href = CONFIG.redirectUrl;
-    }, 2000);
-  }
-}
 
 function showSuccessMessage(score, redirectUrl) {
   const container = document.querySelector('.widget-container');
