@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: hcs-u7-challenge-backend
+    runtime: node
+    region: frankfurt
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: INTERNAL_TOKEN
+        generateValue: true
+      - key: PROXY_SECRET
+        generateValue: true
+    healthCheckPath: /health

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vérification de Sécurité - Perspecta Compétences</title>
+  <meta name="description" content="Vérification de sécurité requise pour accéder à l'application">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="shield-icon">🛡️</div>
+      <h1>Vérification de Sécurité</h1>
+      <p class="subtitle">Perspecta Compétences</p>
+      <p class="description">
+        Pour accéder à l'application, veuillez compléter la vérification de sécurité ci-dessous.
+        Cette étape garantit que seuls les utilisateurs légitimes accèdent à nos services.
+      </p>
+    </header>
+
+    <!-- Widget Container -->
+    <main class="widget-container">
+      <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Chargement du widget de sécurité...</p>
+      </div>
+
+      <!-- Widget HCS-U7 -->
+      <div 
+        id="hcs-captcha" 
+        data-widget-id="wgt_e7cec6afb18df420"
+        style="display: none;">
+      </div>
+    </main>
+
+    <!-- Info -->
+    <footer class="footer">
+      <details class="info-details">
+        <summary>ℹ️ Pourquoi cette vérification ?</summary>
+        <div class="info-content">
+          <h3>Système de Vérification HCS-U7</h3>
+          <ul>
+            <li>✅ Protège contre les accès automatisés</li>
+            <li>✅ Utilise des tests cognitifs validés scientifiquement</li>
+            <li>✅ Respecte votre vie privée (pas de tracking)</li>
+            <li>✅ Durée : 1-2 minutes</li>
+          </ul>
+          <p class="powered-by">
+            Technologie développée par IA-Solution © 2026
+          </p>
+        </div>
+      </details>
+
+      <p class="support">
+        Besoin d'aide ? 
+        <a href="mailto:support@perspecta-competences.fr">support@perspecta-competences.fr</a>
+      </p>
+    </footer>
+  </div>
+
+  <!-- SDK Widget HCS-U7 -->
+  <script src="https://hcs-widget-mvp.vercel.app/widget/v1/captcha.js?id=wgt_e7cec6afb18df420"></script>
+  
+  <!-- Script d'initialisation -->
+  <script src="/app.js"></script>
+</body>
+</html>
