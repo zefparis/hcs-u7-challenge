@@ -26,15 +26,33 @@ function checkWidgetLoaded() {
   const interval = setInterval(() => {
     attempts++;
 
-    if (window.HCS || document.querySelector('#hcs-captcha iframe')) {
-      console.log('✅ Widget SDK loaded');
+    // Vérifier si le SDK est chargé
+    if (typeof window.HCSWidget !== 'undefined' || attempts >= 10) {
+      console.log('✅ Initializing widget manually');
       clearInterval(interval);
-
+      
+      // Masquer loading
       const loading = document.getElementById('loading');
       if (loading) loading.style.display = 'none';
 
-      const widget = document.getElementById('hcs-captcha');
-      if (widget) widget.style.display = 'block';
+      // Créer l'iframe du widget manuellement
+      const container = document.getElementById('hcs-captcha');
+      if (container) {
+        container.style.display = 'block';
+        
+        // Créer l'iframe
+        const iframe = document.createElement('iframe');
+        iframe.src = `https://hcs-widget-mvp.vercel.app/widget/${CONFIG.widgetId}?theme=light&lang=fr`;
+        iframe.style.width = '100%';
+        iframe.style.height = '500px';
+        iframe.style.border = 'none';
+        iframe.style.borderRadius = '8px';
+        
+        container.innerHTML = '';
+        container.appendChild(iframe);
+        
+        console.log('✅ Widget iframe created');
+      }
 
       return;
     }
